@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESP32 Controlled Hand</title>
+  <style>
+    body {
+      background: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .hand {
+      position: relative;
+      width: 300px;
+      height: 400px;
+    }
+
+    .rect {
+      position: absolute;
+      background-color: #3498db;
+      transition: all 0.5s ease;
+    }
+
+    .finger1 { left: 10px; top: 0; }
+    .finger2 { left: 60px; top: 0; }
+    .finger3 { left: 110px; top: 0; }
+    .finger4 { left: 160px; top: 0; }
+    .finger5 { left: 210px; top: 40px; transform: rotate(-20deg); }
+    .palm {
+      left: 40px;
+      top: 180px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="hand">
+  <div class="rect finger1" id="finger1"></div>
+  <div class="rect finger2" id="finger2"></div>
+  <div class="rect finger3" id="finger3"></div>
+  <div class="rect finger4" id="finger4"></div>
+  <div class="rect finger5" id="finger5"></div>
+  <div class="rect palm" id="palm"></div>
+</div>
+
+<script>
+  const ws = new WebSocket('ws://ESP32_IP_ADDRESS/ws'); // Replace with ESP32 IP
+
+  ws.onmessage = function(event) {
+    try {
+      const data = JSON.parse(event.data);
+
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById(`finger${i}`);
+        el.style.backgroundColor = data.fingerColor;
+        el.style.width = data.fingerWidth + 'px';
+        el.style.height = data.fingerHeight + 'px';
+      }
+
+      const palm = document.getElementById('palm');
+      palm.style.backgroundColor = data.palmColor;
+      palm.style.width = data.palmWidth + 'px';
+      palm.style.height = data.palmHeight + 'px';
+    } catch (err) {
+      console.error("Error parsing message:", err);
+    }
+  };
+</script>
+
+</body>
+</html>
